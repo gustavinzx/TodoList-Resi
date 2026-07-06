@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+:root {
+  /* Paleta Corporativa / Produtividade */
+  --bg-base: #f8fafc;
+  --bg-surface: #ffffff;
+  --accent-primary: #3b82f6; /* Blue 500 */
+  --accent-secondary: #10b981; /* Emerald 500 */
+  --accent-danger: #ef4444; /* Red 500 */
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-light: #e2e8f0;
+}
+
+/* Dark mode simples, ativado se quiser */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-base: #0f172a;
+    --bg-surface: #1e293b;
+    --accent-primary: #3b82f6;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-light: #334155;
+  }
+}
+
+@theme inline {
+  --color-background: var(--bg-base);
+  --color-foreground: var(--text-main);
+  --color-primary: var(--accent-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar clean */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.7);
+}
+
+/* Base Card UI */
+.card-ui {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass {
+    background: rgba(30, 41, 59, 0.85);
+  }
+}
+
+/* Skeleton Loading */
+@keyframes skeleton-shimmer {
+  0% { background-position: -300% 0; }
+  100% { background-position: 300% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.1) 0%,
+    rgba(148, 163, 184, 0.2) 30%,
+    rgba(148, 163, 184, 0.3) 50%,
+    rgba(148, 163, 184, 0.2) 70%,
+    rgba(148, 163, 184, 0.1) 100%
+  );
+  background-size: 300% 100%;
+  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+button, a {
+  transition: all 150ms ease;
+}
+
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+}
