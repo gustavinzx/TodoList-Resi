@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/private/',
     },
-    sitemap: 'https://vtourney.com/sitemap.xml',
+    sitemap: 'https://todolistpro.com/sitemap.xml',
   };
 }
