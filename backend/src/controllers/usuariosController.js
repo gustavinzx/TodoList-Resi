@@ -76,6 +76,32 @@ export const listarTodos = async (req, res) => {
     }
 };
 
+// Admin cria um novo usuário (pode definir o perfil direto)
+export const criarUsuarioAdmin = async (req, res) => {
+    try {
+        const { nome, username, email, senha, perfil } = req.body;
+        if (!nome || !username || !email || !senha) {
+            return res.status(400).json({ erro: 'Todos os campos são obrigatórios' });
+        }
+
+        const [existing] = await pool.query('SELECT id FROM todo_usuarios WHERE email = ? OR username = ?', [email, username]);
+        if (existing.length > 0) return res.status(400).json({ erro: 'E-mail ou Username já cadastrado' });
+
+        const salt = await bcrypt.genSalt(10);
+        const senha_hash = await bcrypt.hash(senha, salt);
+        const perfilFinal = perfil === 'admin' ? 'admin' : 'user';
+
+        const [result] = await pool.query(
+            'INSERT INTO todo_usuarios (nome, username, email, senha_hash, perfil) VALUES (?, ?, ?, ?, ?)',
+            [nome, username, email, senha_hash, perfilFinal]
+        );
+
+        res.status(201).json({ id: result.insertId, nome, username, email, perfil: perfilFinal });
+    } catch (e) {
+        res.status(500).json({ erro: e.message });
+    }
+};
+
 export const editarUsuario = async (req, res) => {
     try {
         const { id } = req.params;

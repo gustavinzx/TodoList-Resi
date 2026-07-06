@@ -1,5 +1,5 @@
 import express from 'express';
-import { cadastrar, login, getMe, listarTodos, editarUsuario, excluirUsuario } from '../controllers/usuariosController.js';
+import { cadastrar, login, getMe, listarTodos, criarUsuarioAdmin, editarUsuario, excluirUsuario } from '../controllers/usuariosController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -17,6 +17,7 @@ const adminOnly = (req, res, next) => {
     next();
 };
 
+router.post('/', authenticateToken, adminOnly, criarUsuarioAdmin);
 router.get('/', authenticateToken, adminOnly, listarTodos);
 router.put('/:id', authenticateToken, adminOnly, editarUsuario);
 router.delete('/:id', authenticateToken, adminOnly, excluirUsuario);
