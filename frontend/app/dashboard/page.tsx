@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 import { Plus, Trash2, FileText, CheckCircle2, Clock, Circle } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
 import { useRouter } from 'next/navigation';
+import { NatureBackground } from '@/components/ui/NatureBackground';
+import BlurText from '@/components/ui/BlurText';
 
 interface Tarefa {
     id: number;
@@ -74,8 +76,8 @@ export default function Dashboard() {
     const emAndamento = tarefas.filter(t => t.status === 'em_andamento');
     const concluida = tarefas.filter(t => t.status === 'concluida');
 
-    if (!token) return <div className="p-8 text-center">Redirecionando...</div>;
-    if (loading) return <div className="p-8 text-center">Carregando...</div>;
+    if (!token) return <div className="p-8 text-center text-white">Redirecionando...</div>;
+    if (loading) return <div className="p-8 text-center text-white">Carregando...</div>;
 
     const handleDownloadPDF = async (statusFiltro: string) => {
         try {
@@ -98,102 +100,126 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Minhas Tarefas</h1>
-                    <p className="text-slate-500">Gerencie suas atividades diárias.</p>
-                </div>
+        <NatureBackground>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10 w-full flex-grow">
                 
-                <div className="flex gap-2">
-                    <button onClick={() => handleDownloadPDF('')} className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg font-medium transition-colors border border-slate-200 dark:border-slate-700">
-                        <FileText className="w-4 h-4" /> PDF (Todas)
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 bg-slate-900/40 p-6 rounded-2xl backdrop-blur-md border border-white/10">
+                    <div>
+                        <div className="text-3xl font-bold text-white drop-shadow-md">
+                            <BlurText text="Minhas Tarefas" delay={50} animateBy="words" direction="top" />
+                        </div>
+                        <p className="text-slate-300 mt-2">Visão geral da sua produtividade diária.</p>
+                    </div>
+                    
+                    <div className="flex gap-3">
+                        <button onClick={() => handleDownloadPDF('')} className="flex items-center gap-2 px-5 py-2.5 glass-dark hover:bg-slate-800/80 text-white rounded-xl font-medium transition-all shadow-lg border border-white/20 card-hover">
+                            <FileText className="w-4 h-4 text-blue-400" /> PDF (Geral)
+                        </button>
+                        <button onClick={() => handleDownloadPDF('a_fazer')} className="flex items-center gap-2 px-5 py-2.5 glass-dark hover:bg-slate-800/80 text-white rounded-xl font-medium transition-all shadow-lg border border-white/20 card-hover">
+                            <FileText className="w-4 h-4 text-amber-400" /> PDF (Pendentes)
+                        </button>
+                    </div>
+                </div>
+
+                {/* Create Task Form */}
+                <form onSubmit={criarTarefa} className="glass-dark p-4 mb-8 flex flex-col md:flex-row gap-4 rounded-xl border border-white/10 shadow-xl">
+                    <input 
+                        type="text" 
+                        placeholder="Qual é a sua próxima grande tarefa?" 
+                        required
+                        value={novaTarefa.titulo}
+                        onChange={e => setNovaTarefa({...novaTarefa, titulo: e.target.value})}
+                        className="flex-1 px-4 py-3 rounded-lg border border-slate-700 bg-slate-900/50 text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    />
+                    <input 
+                        type="text" 
+                        placeholder="Detalhes adicionais (opcional)" 
+                        value={novaTarefa.descricao}
+                        onChange={e => setNovaTarefa({...novaTarefa, descricao: e.target.value})}
+                        className="flex-1 px-4 py-3 rounded-lg border border-slate-700 bg-slate-900/50 text-white placeholder-slate-400 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    />
+                    <button type="submit" className="flex items-center justify-center gap-2 px-8 py-3 bg-blue-600/90 hover:bg-blue-600 text-white font-medium rounded-lg transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] whitespace-nowrap card-hover">
+                        <Plus className="w-5 h-5" /> Criar
                     </button>
-                    <button onClick={() => handleDownloadPDF('a_fazer')} className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg font-medium transition-colors border border-slate-200 dark:border-slate-700">
-                         PDF (Pendentes)
-                    </button>
+                </form>
+
+                {/* Kanban Board */}
+                <div className="grid md:grid-cols-3 gap-6">
+                    {/* Coluna A Fazer */}
+                    <div className="glass-dark rounded-xl p-5 border border-white/5 shadow-2xl h-fit">
+                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+                            <div className="flex items-center gap-2 text-white">
+                                <Circle className="w-5 h-5 text-slate-400" />
+                                <h2 className="text-lg font-semibold">A Fazer</h2>
+                            </div>
+                            <span className="bg-slate-800 text-slate-300 text-xs px-2.5 py-1 rounded-full border border-slate-700">{aFazer.length}</span>
+                        </div>
+                        <div className="space-y-3">
+                            {aFazer.map(t => <TaskCard key={t.id} tarefa={t} onStatus={mudarStatus} onDelete={deletarTarefa} color="border-l-slate-400" />)}
+                        </div>
+                    </div>
+
+                    {/* Coluna Em Andamento */}
+                    <div className="glass-dark rounded-xl p-5 border border-white/5 shadow-2xl h-fit">
+                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+                            <div className="flex items-center gap-2 text-white">
+                                <Clock className="w-5 h-5 text-blue-400" />
+                                <h2 className="text-lg font-semibold">Em Andamento</h2>
+                            </div>
+                            <span className="bg-blue-900/50 text-blue-200 text-xs px-2.5 py-1 rounded-full border border-blue-800/50">{emAndamento.length}</span>
+                        </div>
+                        <div className="space-y-3">
+                            {emAndamento.map(t => <TaskCard key={t.id} tarefa={t} onStatus={mudarStatus} onDelete={deletarTarefa} color="border-l-blue-400" />)}
+                        </div>
+                    </div>
+
+                    {/* Coluna Concluídas */}
+                    <div className="glass-dark rounded-xl p-5 border border-white/5 shadow-2xl h-fit">
+                        <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+                            <div className="flex items-center gap-2 text-white">
+                                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                                <h2 className="text-lg font-semibold">Concluídas</h2>
+                            </div>
+                            <span className="bg-emerald-900/50 text-emerald-200 text-xs px-2.5 py-1 rounded-full border border-emerald-800/50">{concluida.length}</span>
+                        </div>
+                        <div className="space-y-3">
+                            {concluida.map(t => <TaskCard key={t.id} tarefa={t} onStatus={mudarStatus} onDelete={deletarTarefa} color="border-l-emerald-400" />)}
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <form onSubmit={criarTarefa} className="card-ui p-4 mb-8 flex flex-col md:flex-row gap-4">
-                <input 
-                    type="text" 
-                    placeholder="Título da Tarefa" 
-                    required
-                    value={novaTarefa.titulo}
-                    onChange={e => setNovaTarefa({...novaTarefa, titulo: e.target.value})}
-                    className="flex-1 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-                <input 
-                    type="text" 
-                    placeholder="Descrição (opcional)" 
-                    value={novaTarefa.descricao}
-                    onChange={e => setNovaTarefa({...novaTarefa, descricao: e.target.value})}
-                    className="flex-1 px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-                <button type="submit" className="flex items-center justify-center gap-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors whitespace-nowrap">
-                    <Plus className="w-5 h-5" /> Adicionar
-                </button>
-            </form>
-
-            <div className="grid md:grid-cols-3 gap-6">
-                {/* Coluna A Fazer */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 pb-2 border-b-2 border-slate-200 dark:border-slate-700">
-                        <Circle className="w-5 h-5 text-slate-400" />
-                        <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-300">A Fazer ({aFazer.length})</h2>
-                    </div>
-                    {aFazer.map(t => <TaskCard key={t.id} tarefa={t} onStatus={mudarStatus} onDelete={deletarTarefa} />)}
-                </div>
-
-                {/* Coluna Em Andamento */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 pb-2 border-b-2 border-blue-200 dark:border-blue-900">
-                        <Clock className="w-5 h-5 text-blue-500" />
-                        <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-300">Em Andamento ({emAndamento.length})</h2>
-                    </div>
-                    {emAndamento.map(t => <TaskCard key={t.id} tarefa={t} onStatus={mudarStatus} onDelete={deletarTarefa} />)}
-                </div>
-
-                {/* Coluna Concluídas */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 pb-2 border-b-2 border-emerald-200 dark:border-emerald-900">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                        <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-300">Concluídas ({concluida.length})</h2>
-                    </div>
-                    {concluida.map(t => <TaskCard key={t.id} tarefa={t} onStatus={mudarStatus} onDelete={deletarTarefa} />)}
-                </div>
-            </div>
-        </div>
+        </NatureBackground>
     );
 }
 
-function TaskCard({ tarefa, onStatus, onDelete }: { tarefa: Tarefa, onStatus: any, onDelete: any }) {
+function TaskCard({ tarefa, onStatus, onDelete, color }: { tarefa: Tarefa, onStatus: any, onDelete: any, color: string }) {
     return (
-        <div className="card-ui p-4 flex flex-col gap-3 group relative overflow-hidden">
+        <div className={`bg-slate-800/60 p-4 rounded-lg flex flex-col gap-3 group relative overflow-hidden border border-slate-700/50 shadow-inner hover:bg-slate-700/80 transition-colors border-l-4 ${color}`}>
             <div>
-                <h3 className="font-semibold text-slate-900 dark:text-white pr-8">{tarefa.titulo}</h3>
-                {tarefa.descricao && <p className="text-sm text-slate-500 mt-1">{tarefa.descricao}</p>}
+                <h3 className="font-semibold text-white pr-8">{tarefa.titulo}</h3>
+                {tarefa.descricao && <p className="text-sm text-slate-400 mt-1.5 line-clamp-2">{tarefa.descricao}</p>}
             </div>
             
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center justify-between mt-1">
                 <select 
                     value={tarefa.status}
                     onChange={(e) => onStatus(tarefa.id, e.target.value)}
-                    className="text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 outline-none text-slate-700 dark:text-slate-300"
+                    className="text-xs bg-slate-900/80 border border-slate-600 rounded px-2.5 py-1.5 outline-none text-slate-300 focus:ring-1 focus:ring-blue-500 cursor-pointer"
                 >
                     <option value="a_fazer">A Fazer</option>
                     <option value="em_andamento">Em Andamento</option>
                     <option value="concluida">Concluída</option>
                 </select>
-                <span className="text-xs text-slate-400">
+                <span className="text-[11px] text-slate-500 font-medium">
                     {new Date(tarefa.criado_em).toLocaleDateString('pt-BR')}
                 </span>
             </div>
 
             <button 
                 onClick={() => onDelete(tarefa.id)}
-                className="absolute top-3 right-3 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-3 right-3 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/50 p-1.5 rounded-md"
+                title="Excluir"
             >
                 <Trash2 className="w-4 h-4" />
             </button>
